@@ -12,15 +12,17 @@ import { formatCurrency, calcPaid, calcRemaining, COURSES } from '../../data/moc
 
 function AddStudentModal({ isOpen, onClose }) {
   const { addStudent } = useApp();
-  const [form, setForm] = useState({ name: '', mobile: '', course: COURSES[0], yearlyFee: '' });
+  const [form, setForm] = useState({ id: '', name: '', mobile: '', course: COURSES[0], yearlyFee: '', password: '' });
   const [errors, setErrors] = useState({});
 
   const validate = () => {
     const e = {};
+    if (!form.id.trim())                e.id        = 'Student ID is required';
     if (!form.name.trim())              e.name      = 'Name is required';
     if (!/^\d{10}$/.test(form.mobile))  e.mobile    = '10-digit mobile number required';
     if (!form.yearlyFee || isNaN(form.yearlyFee) || Number(form.yearlyFee) <= 0)
                                          e.yearlyFee = 'Valid yearly fee required';
+    if (!form.password.trim())          e.password  = 'Password is required';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -29,9 +31,9 @@ function AddStudentModal({ isOpen, onClose }) {
     e.preventDefault();
     if (!validate()) return;
     try {
-      const student = await addStudent(form);
-      toast.success(`✅ Student ${student.name} added! ID: ${student.id} | Password: pass123`);
-      setForm({ name: '', mobile: '', course: COURSES[0], yearlyFee: '' });
+      const student = await addStudent({ ...form, id: form.id.trim(), password: form.password.trim() });
+      toast.success(`✅ Student ${student.name} added!`);
+      setForm({ id: '', name: '', mobile: '', course: COURSES[0], yearlyFee: '', password: '' });
       setErrors({});
       onClose();
     } catch (err) {
@@ -43,26 +45,37 @@ function AddStudentModal({ isOpen, onClose }) {
     <Modal isOpen={isOpen} onClose={onClose} title="Add New Student">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
+          <label className="label">Custom Student ID *</label>
+          <input
+            className={`input uppercase ${errors.id ? 'border-rose-500 focus:ring-rose-400' : ''}`}
+            placeholder="e.g. C8001"
+            value={form.id}
+            onChange={(e) => setForm({ ...form, id: e.target.value })}
+          />
+          {errors.id && <p className="text-rose-500 text-xs mt-1">{errors.id}</p>}
+        </div>
+
+        <div>
           <label className="label">Full Name *</label>
           <input
-            className={`input ${errors.name ? 'border-red-400 focus:ring-red-400' : ''}`}
+            className={`input ${errors.name ? 'border-rose-500 focus:ring-rose-400' : ''}`}
             placeholder="e.g. Rahul Sharma"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
-          {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+          {errors.name && <p className="text-rose-500 text-xs mt-1">{errors.name}</p>}
         </div>
 
         <div>
           <label className="label">Mobile Number *</label>
           <input
-            className={`input ${errors.mobile ? 'border-red-400 focus:ring-red-400' : ''}`}
+            className={`input ${errors.mobile ? 'border-rose-500 focus:ring-rose-400' : ''}`}
             placeholder="10-digit mobile"
             maxLength={10}
             value={form.mobile}
             onChange={(e) => setForm({ ...form, mobile: e.target.value.replace(/\D/g, '') })}
           />
-          {errors.mobile && <p className="text-red-500 text-xs mt-1">{errors.mobile}</p>}
+          {errors.mobile && <p className="text-rose-500 text-xs mt-1">{errors.mobile}</p>}
         </div>
 
         <div>
@@ -79,17 +92,27 @@ function AddStudentModal({ isOpen, onClose }) {
         <div>
           <label className="label">Yearly Fee (₹) *</label>
           <input
-            className={`input ${errors.yearlyFee ? 'border-red-400 focus:ring-red-400' : ''}`}
+            className={`input ${errors.yearlyFee ? 'border-rose-500 focus:ring-rose-400' : ''}`}
             placeholder="e.g. 48000"
             value={form.yearlyFee}
             onChange={(e) => setForm({ ...form, yearlyFee: e.target.value })}
           />
-          {errors.yearlyFee && <p className="text-red-500 text-xs mt-1">{errors.yearlyFee}</p>}
+          {errors.yearlyFee && <p className="text-rose-500 text-xs mt-1">{errors.yearlyFee}</p>}
+        </div>
+
+        <div>
+          <label className="label">Student Password *</label>
+          <input
+            className={`input ${errors.password ? 'border-rose-500 focus:ring-rose-400' : ''}`}
+            placeholder="e.g. stu@123"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+          {errors.password && <p className="text-rose-500 text-xs mt-1">{errors.password}</p>}
         </div>
 
         <div className="p-3 bg-silver-200 rounded-xl text-xs text-silver-600">
-          <strong>Note:</strong> Default password will be <code className="font-mono bg-white px-1 rounded">pass123</code>.
-          Student can use their assigned ID to login.
+          <strong>Note:</strong> Students will use this ID and password to log in to their portal.
         </div>
 
         <div className="flex gap-3 pt-2">
@@ -123,24 +146,25 @@ export default function StudentsPage() {
       <Sidebar />
       <AddStudentModal isOpen={addOpen} onClose={() => setAddOpen(false)} />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden">
         {/* Top bar */}
-        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-silver-300/60 px-6 py-4 flex items-center justify-between">
-          <div className="lg:pl-0 pl-12 flex items-center gap-2">
-            <Users size={20} className="text-accent-500" />
-            <h1 className="text-xl font-bold text-navy-950">Students</h1>
-            <span className="badge-info ml-2">{students.length}</span>
+        <div className="topbar">
+          <div className="lg:pl-0 pl-12 flex items-center gap-2 min-w-0">
+            <Users size={22} className="text-accent-500 flex-shrink-0" />
+            <h1 className="text-xl lg:text-2xl font-black text-navy-900 tracking-tight truncate">Students</h1>
+            <span className="badge-info ml-1 flex-shrink-0">{students.length}</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <DemoBadge />
             <button onClick={() => setAddOpen(true)} className="btn-primary">
               <Plus size={16} />
-              Add Student
+              <span className="hidden sm:inline">Add Student</span>
+              <span className="sm:hidden">Add</span>
             </button>
           </div>
         </div>
 
-        <div className="p-6 max-w-7xl mx-auto space-y-5">
+        <div className="page-content space-y-4">
           {/* Search + Filter */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
@@ -208,7 +232,7 @@ export default function StudentsPage() {
                           <td className="font-semibold text-navy-800">{formatCurrency(s.yearlyFee)}</td>
                           <td className="font-bold text-emerald-600">{formatCurrency(paid)}</td>
                           <td>
-                            <span className={remaining > 0 ? 'font-bold text-red-500' : 'font-bold text-emerald-600'}>
+                            <span className={remaining > 0 ? 'font-bold text-amber-600' : 'font-bold text-emerald-600'}>
                               {remaining > 0 ? formatCurrency(remaining) : '✓ Cleared'}
                             </span>
                           </td>

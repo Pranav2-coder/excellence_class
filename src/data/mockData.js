@@ -1,5 +1,5 @@
 // ============================================================
-// Mock Data — EduPay Pro Demo
+// Mock Data — Excellence Coaching Demo
 // ============================================================
 
 export const COURSES = [

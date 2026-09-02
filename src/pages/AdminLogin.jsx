@@ -30,16 +30,12 @@ export default function AdminLogin() {
       loginAdmin();
       navigate('/admin/dashboard');
     } else {
-      setError('Invalid credentials. Use the demo credentials below.');
+      setError('Invalid credentials.');
     }
     setLoading(false);
   };
 
-  const fillDemo = () => {
-    setEmail(ADMIN_CREDENTIAL.email);
-    setPassword(ADMIN_CREDENTIAL.password);
-    setError('');
-  };
+
 
   return (
     <div className="min-h-screen bg-gradient-navy flex">
@@ -53,15 +49,15 @@ export default function AdminLogin() {
           <div className="w-20 h-20 bg-gradient-accent rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-glow animate-float">
             <GraduationCap size={40} className="text-white" />
           </div>
-          <h2 className="text-4xl font-extrabold text-white mb-4">EduPay Pro</h2>
-          <p className="text-slate-300 text-lg leading-relaxed mb-8">
+          <h2 className="text-4xl font-extrabold text-white mb-4">Excellence Coaching</h2>
+          <p className="text-white text-lg leading-relaxed mb-8">
             The premium fee management system for modern coaching institutes.
           </p>
           <div className="grid grid-cols-2 gap-4 text-left">
             {['Track all payments', 'Student management', 'Analytics dashboard', 'Mobile responsive'].map((item) => (
               <div key={item} className="glass rounded-xl p-3 flex items-center gap-2.5">
                 <ShieldCheck size={16} className="text-accent-400 flex-shrink-0" />
-                <span className="text-slate-300 text-sm">{item}</span>
+                <span className="text-white text-sm">{item}</span>
               </div>
             ))}
           </div>
@@ -93,14 +89,14 @@ export default function AdminLogin() {
 
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className="label text-slate-300 lg:text-navy-800">Email Address</label>
+                <label className="label text-black lg:text-navy-800">Email Address</label>
                 <div className="relative">
                   <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-500" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@demo.com"
+                    placeholder="admin@example.com"
                     className="input pl-10"
                     autoComplete="email"
                   />
@@ -108,7 +104,7 @@ export default function AdminLogin() {
               </div>
 
               <div>
-                <label className="label text-slate-300 lg:text-navy-800">Password</label>
+                <label className="label text-black lg:text-navy-800">Password</label>
                 <div className="relative">
                   <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-500" />
                   <input
@@ -130,7 +126,7 @@ export default function AdminLogin() {
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
+                <div className="bg-[#84cc16] border border-[#84cc16] text-[#84cc16] text-sm px-4 py-3 rounded-xl">
                   {error}
                 </div>
               )}
@@ -149,17 +145,7 @@ export default function AdminLogin() {
               </button>
             </form>
 
-            {/* Demo credentials hint */}
-            <div className="mt-6 p-4 bg-accent-50 rounded-xl border border-accent-200">
-              <p className="text-xs font-semibold text-accent-700 mb-2 uppercase tracking-wide">Demo Credentials</p>
-              <div className="space-y-1 text-xs text-accent-600 font-mono">
-                <p><span className="text-silver-500">Email:</span> admin@demo.com</p>
-                <p><span className="text-silver-500">Pass:</span>  admin123</p>
-              </div>
-              <button onClick={fillDemo} className="mt-3 text-xs font-semibold text-accent-600 hover:text-accent-700 underline">
-                Auto-fill credentials →
-              </button>
-            </div>
+
 
             <p className="text-center mt-5 text-sm text-silver-500">
               Are you a student?{' '}

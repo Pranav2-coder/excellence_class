@@ -63,13 +63,13 @@ function AddPaymentModal({ isOpen, onClose, studentId }) {
           <div className="relative">
             <IndianRupee size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-500" />
             <input
-              className={`input pl-10 ${errors.amount ? 'border-red-400' : ''}`}
+              className={`input pl-10 ${errors.amount ? 'border-rose-500' : ''}`}
               placeholder="Enter amount"
               value={form.amount}
               onChange={(e) => setForm({ ...form, amount: e.target.value })}
             />
           </div>
-          {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
+          {errors.amount && <p className="text-rose-500 text-xs mt-1">{errors.amount}</p>}
         </div>
 
         <div>
@@ -78,12 +78,12 @@ function AddPaymentModal({ isOpen, onClose, studentId }) {
             <CalendarDays size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-500" />
             <input
               type="date"
-              className={`input pl-10 ${errors.date ? 'border-red-400' : ''}`}
+              className={`input pl-10 ${errors.date ? 'border-rose-500' : ''}`}
               value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
             />
           </div>
-          {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
+          {errors.date && <p className="text-rose-500 text-xs mt-1">{errors.date}</p>}
         </div>
 
         <div>
@@ -165,36 +165,35 @@ export default function StudentDetail() {
       <Sidebar />
       <AddPaymentModal isOpen={payOpen} onClose={() => setPayOpen(false)} studentId={id} />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden">
         {/* Top bar */}
-        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-silver-300/60 px-6 py-4 flex items-center justify-between">
-          <div className="lg:pl-0 pl-12 flex items-center gap-3">
-            <button onClick={() => navigate('/admin/students')} className="btn-ghost">
-              <ArrowLeft size={16} />
+        <div className="topbar">
+          <div className="lg:pl-0 pl-12 flex items-center gap-2 min-w-0">
+            <button onClick={() => navigate('/admin/students')} className="btn-ghost p-2 flex-shrink-0">
+              <ArrowLeft size={18} />
             </button>
-            <div>
-              <h1 className="text-xl font-bold text-navy-950">{student.name}</h1>
-              <p className="text-xs text-silver-500 font-mono">{student.id}</p>
+            <div className="min-w-0">
+              <h1 className="text-lg lg:text-2xl font-black text-navy-900 tracking-tight truncate">{student.name}</h1>
+              <p className="text-xs text-silver-500 font-mono mt-0.5 hidden sm:block">{student.id}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <DemoBadge />
             <button
               onClick={handleDelete}
-              className="btn-ghost text-red-500 hover:bg-red-50 hover:text-red-600"
+              className="btn-ghost text-rose-500 hover:bg-rose-50 hover:text-rose-600 p-2"
               title="Delete student"
             >
-              <Trash2 size={16} />
-              <span className="hidden sm:inline">Delete</span>
+              <Trash2 size={18} />
             </button>
             <button onClick={() => setPayOpen(true)} className="btn-primary">
               <Plus size={16} />
-              Add Payment
+              <span className="hidden sm:inline">Add Payment</span>
             </button>
           </div>
         </div>
 
-        <div className="p-6 max-w-5xl mx-auto space-y-5">
+        <div className="page-content space-y-5">
           {/* Student info + fee summary */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             {/* Info card */}
@@ -223,6 +222,16 @@ export default function StudentDetail() {
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-silver-200">
+                <div className="bg-silver-100 rounded-xl p-3 mb-4 flex justify-between items-center">
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-silver-500 tracking-wider">Login Credentials</p>
+                    <p className="text-sm font-mono font-medium text-navy-900 mt-0.5">ID: {student.id}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] uppercase font-bold text-silver-500 tracking-wider">Password</p>
+                    <p className="text-sm font-mono font-medium text-navy-900 mt-0.5">{student.password}</p>
+                  </div>
+                </div>
                 <p className="text-xs text-silver-500 mb-1">Total Payments Made</p>
                 <p className="text-2xl font-extrabold text-navy-950">{student.payments.length}</p>
               </div>
@@ -237,12 +246,12 @@ export default function StudentDetail() {
                   <p className="text-xl font-extrabold text-navy-950">{formatCurrency(student.yearlyFee)}</p>
                 </div>
                 <div className="text-center p-4 bg-emerald-50 rounded-xl">
-                  <p className="text-xs text-emerald-600 mb-1">Paid</p>
+                  <p className="text-xs text-emerald-600 mb-1 font-semibold">Paid</p>
                   <p className="text-xl font-extrabold text-emerald-600">{formatCurrency(paid)}</p>
                 </div>
-                <div className={`text-center p-4 rounded-xl ${remaining > 0 ? 'bg-red-50' : 'bg-emerald-50'}`}>
-                  <p className={`text-xs mb-1 ${remaining > 0 ? 'text-red-500' : 'text-emerald-600'}`}>Remaining</p>
-                  <p className={`text-xl font-extrabold ${remaining > 0 ? 'text-red-500' : 'text-emerald-600'}`}>
+                <div className={`text-center p-4 rounded-xl ${remaining > 0 ? 'bg-amber-50' : 'bg-emerald-50'}`}>
+                  <p className={`text-xs mb-1 font-semibold ${remaining > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>Remaining</p>
+                  <p className={`text-xl font-extrabold ${remaining > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
                     {remaining > 0 ? formatCurrency(remaining) : '✓ Clear'}
                   </p>
                 </div>
@@ -252,7 +261,7 @@ export default function StudentDetail() {
 
               {remaining === 0 && (
                 <div className="mt-4 flex items-center gap-2 p-3 bg-emerald-50 rounded-xl">
-                  <CheckCircle2 size={18} className="text-emerald-500" />
+                  <CheckCircle2 size={18} className="text-emerald-600" />
                   <span className="text-emerald-700 text-sm font-semibold">All fees have been cleared! 🎉</span>
                 </div>
               )}

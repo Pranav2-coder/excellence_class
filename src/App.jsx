@@ -37,17 +37,18 @@ export default function App() {
             fontSize: '14px',
             fontWeight: '500',
             background: '#0f172a',
-            color: '#f8fafc',
+            color: '#ffffff',
             border: '1px solid rgba(255,255,255,0.1)',
           },
-          success: { iconTheme: { primary: '#10b981', secondary: '#f8fafc' } },
-          error:   { iconTheme: { primary: '#ef4444', secondary: '#f8fafc' } },
+          success: { iconTheme: { primary: '#10b981', secondary: '#ffffff' } },
+          error:   { iconTheme: { primary: '#ef4444', secondary: '#ffffff' } },
         }}
       />
 
       <Routes>
         {/* Public */}
         <Route path="/"               element={<Landing />} />
+        <Route path="/admin"          element={<Navigate to="/admin/login" replace />} />
         <Route path="/admin/login"    element={<AdminLogin />} />
         <Route path="/student/login"  element={<StudentLogin />} />
 

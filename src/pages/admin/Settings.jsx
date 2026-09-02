@@ -142,10 +142,10 @@ export default function SettingsPage() {
                 <div className="flex gap-3 mt-2">
                   {[
                     { color: 'bg-accent-500', label: 'Indigo' },
-                    { color: 'bg-emerald-500', label: 'Emerald' },
+                    { color: 'bg-[#84cc16]', label: 'Emerald' },
                     { color: 'bg-sky-500',     label: 'Sky'     },
                     { color: 'bg-violet-500',  label: 'Violet'  },
-                    { color: 'bg-rose-500',    label: 'Rose'    },
+                    { color: 'bg-[#84cc16]',    label: 'Rose'    },
                   ].map((t) => (
                     <button key={t.label} className={`w-9 h-9 rounded-xl ${t.color} ring-2 ring-offset-2 ring-transparent hover:ring-accent-400 transition-all`} title={t.label} />
                   ))}

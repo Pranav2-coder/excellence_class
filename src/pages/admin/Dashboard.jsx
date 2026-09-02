@@ -11,7 +11,7 @@ import Sidebar    from '../../components/Sidebar';
 import StatCard   from '../../components/StatCard';
 import DemoBadge  from '../../components/DemoBadge';
 import { useApp } from '../../context/AppContext';
-import { formatCurrency, formatDate, MONTHLY_CHART_DATA, COURSE_CHART_DATA } from '../../data/mockData';
+import { formatCurrency, formatDate } from '../../data/mockData';
 import { useNavigate } from 'react-router-dom';
 
 const PIE_COLORS = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
@@ -33,10 +33,12 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function AdminDashboard() {
-  const { getTotals, getRecentPayments } = useApp();
-  const navigate = useNavigate();
-  const totals   = getTotals();
-  const recent   = getRecentPayments(7);
+  const { getTotals, getRecentPayments, getMonthlyChartData, getCourseChartData } = useApp();
+  const navigate   = useNavigate();
+  const totals     = getTotals();
+  const recent     = getRecentPayments(7);
+  const monthlyData = getMonthlyChartData();
+  const courseData  = getCourseChartData();
 
   const CARDS = [
     {
@@ -75,26 +77,26 @@ export default function AdminDashboard() {
     <div className="flex h-screen overflow-hidden bg-silver-100">
       <Sidebar />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden">
         {/* Top bar */}
-        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-silver-300/60 px-6 py-4 flex items-center justify-between">
-          <div className="lg:pl-0 pl-12">
-            <h1 className="text-xl font-bold text-navy-950">Dashboard</h1>
-            <p className="text-sm text-silver-500">Welcome back, Admin 👋</p>
+        <div className="topbar">
+          <div className="lg:pl-0 pl-12 flex flex-col min-w-0">
+            <h1 className="text-xl lg:text-2xl font-black text-navy-900 tracking-tight">Overview</h1>
+            <p className="text-xs sm:text-sm font-medium text-silver-500 mt-0.5">Welcome back, Admin 👋</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             <DemoBadge />
-            <button className="relative p-2 rounded-xl hover:bg-silver-200 transition-colors text-silver-600">
-              <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent-500 rounded-full" />
+            <button className="relative p-2.5 rounded-xl hover:bg-silver-100 transition-all duration-300 text-silver-600 hover:text-accent-600">
+              <Bell size={20} />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 border-2 border-white rounded-full animate-pulse" />
             </button>
-            <div className="w-9 h-9 bg-gradient-accent rounded-xl flex items-center justify-center">
+            <div className="w-9 h-9 bg-gradient-accent rounded-xl flex items-center justify-center shadow-glow cursor-pointer hover:scale-105 transition-transform">
               <span className="text-white text-sm font-bold">A</span>
             </div>
           </div>
         </div>
 
-        <div className="p-6 space-y-6 max-w-7xl mx-auto">
+        <div className="page-content space-y-5">
           {/* Stat cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
             {CARDS.map((c) => (
@@ -104,24 +106,26 @@ export default function AdminDashboard() {
 
           {/* Charts row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            {/* Area chart */}
             <div className="lg:col-span-2 card animate-fade-in">
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <h2 className="font-bold text-navy-950">Fee Collection Trend</h2>
-                  <p className="text-xs text-silver-500 mt-0.5">Last 6 months — collected vs target</p>
+                  <p className="text-xs text-silver-500 mt-0.5">Last 6 months — collected vs monthly target</p>
                 </div>
               </div>
+              {monthlyData.length === 0 ? (
+                <div className="h-[220px] flex items-center justify-center text-silver-400 text-sm">No payment data yet.</div>
+              ) : (
               <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={MONTHLY_CHART_DATA} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+                <AreaChart data={monthlyData} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorCollected" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#6366f1" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}    />
+                      <stop offset="5%"  stopColor="#84cc16" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#84cc16" stopOpacity={0}    />
                     </linearGradient>
                     <linearGradient id="colorTarget" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#10b981" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}    />
+                      <stop offset="5%"  stopColor="#6366f1" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}    />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -130,20 +134,25 @@ export default function AdminDashboard() {
                     tickFormatter={(v) => `₹${v / 1000}K`} />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }} />
-                  <Area type="monotone" dataKey="target"    name="Target"    stroke="#10b981" fill="url(#colorTarget)"    strokeWidth={2} strokeDasharray="4 4" />
-                  <Area type="monotone" dataKey="collected" name="Collected" stroke="#6366f1" fill="url(#colorCollected)" strokeWidth={2.5} />
+                  <Area type="monotone" dataKey="target"    name="Monthly Target" stroke="#6366f1" fill="url(#colorTarget)"    strokeWidth={2} strokeDasharray="4 4" />
+                  <Area type="monotone" dataKey="collected" name="Collected"       stroke="#84cc16" fill="url(#colorCollected)" strokeWidth={2.5} />
                 </AreaChart>
               </ResponsiveContainer>
+              )}
             </div>
 
             {/* Pie chart */}
             <div className="card animate-fade-in">
               <h2 className="font-bold text-navy-950 mb-1">Students by Course</h2>
               <p className="text-xs text-silver-500 mb-4">Distribution across batches</p>
+              {courseData.length === 0 ? (
+                <div className="h-[170px] flex items-center justify-center text-silver-400 text-sm">No students yet.</div>
+              ) : (
+              <>
               <ResponsiveContainer width="100%" height={170}>
                 <PieChart>
                   <Pie
-                    data={COURSE_CHART_DATA}
+                    data={courseData}
                     cx="50%"
                     cy="50%"
                     innerRadius={45}
@@ -151,22 +160,27 @@ export default function AdminDashboard() {
                     paddingAngle={3}
                     dataKey="value"
                   >
-                    {COURSE_CHART_DATA.map((_, i) => (
+                    {courseData.map((_, i) => (
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(val) => `${val}%`} contentStyle={{ borderRadius: '12px', fontSize: '12px' }} />
+                  <Tooltip
+                    formatter={(val, name, props) => [`${props.payload.count} students (${val}%)`, props.payload.name]}
+                    contentStyle={{ borderRadius: '12px', fontSize: '12px', border: '1px solid #e5e7eb' }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
               <div className="grid grid-cols-2 gap-1.5 mt-2">
-                {COURSE_CHART_DATA.map((d, i) => (
+                {courseData.map((d, i) => (
                   <div key={d.name} className="flex items-center gap-1.5 text-xs text-navy-800">
-                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: PIE_COLORS[i] }} />
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
                     <span className="truncate">{d.name}</span>
-                    <span className="ml-auto font-semibold text-silver-500">{d.value}%</span>
+                    <span className="ml-auto font-bold text-silver-500">{d.count}</span>
                   </div>
                 ))}
               </div>
+              </>
+              )}
             </div>
           </div>
 

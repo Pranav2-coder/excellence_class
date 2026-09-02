@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { GraduationCap, User, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { GraduationCap, User, Lock, Eye, EyeOff, ArrowLeft, BookOpen, Clock, FileText } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import DemoBadge from '../components/DemoBadge';
 
 export default function StudentLogin() {
   const navigate = useNavigate();
@@ -26,96 +25,133 @@ export default function StudentLogin() {
     if (success) {
       navigate('/student/dashboard');
     } else {
-      setError('Invalid Student ID or password. Check the demo credentials below.');
+      setError('Invalid Student ID or password.');
     }
     setLoading(false);
   };
 
-  const fillDemo = (id, pass) => {
-    setStudentId(id);
-    setPassword(pass);
-    setError('');
-  };
-
-  const DEMOS = [
-    { id: 'STU001', pass: 'stu001', name: 'Aarav Sharma' },
-    { id: 'STU002', pass: 'stu002', name: 'Priya Patel' },
-    { id: 'STU003', pass: 'stu003', name: 'Rohan Mehta' },
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-navy flex items-center justify-center p-6">
-      <div className="w-full max-w-md animate-slide-up">
-        {/* Back */}
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-8 transition-colors">
-          <ArrowLeft size={16} />
-          Back to Home
-        </Link>
+    <div className="min-h-screen bg-gradient-navy flex">
+      {/* Left panel (visuals & text) */}
+      <div className="hidden lg:flex flex-1 flex-col items-center justify-center p-12 relative overflow-hidden">
+        {/* Decorations */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute top-20 right-20 w-72 h-72 bg-accent-500/20 rounded-full blur-3xl animate-pulse-slow" />
+          <div className="absolute bottom-20 left-10 w-64 h-64 bg-violet-600/20 rounded-full blur-3xl animate-pulse-slow" />
+        </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          {/* Header strip */}
-          <div className="bg-gradient-accent p-6 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/10" />
-            <div className="relative">
-              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <GraduationCap size={28} className="text-white" />
+        <div className="relative text-center max-w-md z-10">
+          <div className="w-20 h-20 bg-gradient-accent rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-glow animate-float">
+            <GraduationCap size={40} className="text-white" />
+          </div>
+          <h2 className="text-4xl font-extrabold text-white mb-4">Student Portal</h2>
+          <p className="text-white text-lg leading-relaxed mb-8">
+            Access your fee details, download receipts, and track your payment history seamlessly.
+          </p>
+          
+          <div className="grid grid-cols-1 gap-4 text-left mt-8">
+            <div className="glass rounded-xl p-4 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                <FileText size={20} className="text-accent-400" />
               </div>
-              <h1 className="text-xl font-bold text-white">Student Portal</h1>
-              <p className="text-indigo-200 text-sm mt-1">Sign in to view your fee status</p>
-              <div className="mt-3 flex justify-center"><DemoBadge /></div>
+              <div>
+                <h4 className="text-white font-semibold text-sm">Download Receipts</h4>
+                <p className="text-white text-xs mt-0.5">Instant access to past payment receipts</p>
+              </div>
+            </div>
+            
+            <div className="glass rounded-xl p-4 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                <Clock size={20} className="text-[#84cc16]" />
+              </div>
+              <div>
+                <h4 className="text-white font-semibold text-sm">Track Dues</h4>
+                <p className="text-white text-xs mt-0.5">Stay updated with upcoming and pending fees</p>
+              </div>
+            </div>
+            
+            <div className="glass rounded-xl p-4 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                <BookOpen size={20} className="text-violet-400" />
+              </div>
+              <div>
+                <h4 className="text-white font-semibold text-sm">Course Details</h4>
+                <p className="text-white text-xs mt-0.5">View your enrolled batches and courses</p>
+              </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="p-6">
-            <form onSubmit={handleLogin} className="space-y-4">
+      {/* Right panel (form) */}
+      <div className="flex-1 flex items-center justify-center p-6 lg:bg-silver-100 lg:rounded-l-3xl relative z-10">
+        <div className="w-full max-w-md">
+          {/* Back button */}
+          <Link to="/" className="inline-flex items-center gap-2 text-sm text-silver-500 hover:text-navy-950 mb-8 transition-colors lg:text-navy-700 font-medium">
+            <ArrowLeft size={16} />
+            Back to Home
+          </Link>
+
+          <div className="lg:card animate-slide-up bg-white p-8 lg:p-10 rounded-2xl shadow-2xl lg:shadow-card-hover border border-silver-200">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 bg-gradient-accent rounded-xl flex items-center justify-center shadow-glow lg:hidden">
+                <GraduationCap size={24} className="text-white" />
+              </div>
               <div>
-                <label className="label">Student ID</label>
-                <div className="relative">
-                  <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-500" />
+                <h1 className="text-2xl lg:text-3xl font-extrabold text-navy-950">Welcome Back</h1>
+                <p className="text-sm text-silver-500 mt-1">Sign in to your student account</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div>
+                <label className="label text-navy-800">Student ID</label>
+                <div className="relative group">
+                  <User size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-400 group-focus-within:text-accent-500 transition-colors" />
                   <input
                     type="text"
                     value={studentId}
                     onChange={(e) => setStudentId(e.target.value)}
                     placeholder="e.g. STU001"
-                    className="input pl-10 uppercase"
+                    className="input pl-11 uppercase py-3.5 text-base border-silver-300 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20"
                     autoComplete="username"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="label">Password</label>
-                <div className="relative">
-                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-500" />
+                <label className="label text-navy-800">Password</label>
+                <div className="relative group">
+                  <Lock size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-400 group-focus-within:text-accent-500 transition-colors" />
                   <input
                     type={showPw ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
-                    className="input pl-10 pr-10"
+                    placeholder="Enter your password"
+                    className="input pl-11 pr-11 py-3.5 text-base border-silver-300 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20"
                     autoComplete="current-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPw(!showPw)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-silver-500 hover:text-navy-800"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-silver-400 hover:text-navy-800 transition-colors p-1"
                   >
-                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
-                  {error}
+                <div className="bg-[#84cc16] border border-[#84cc16] text-[#84cc16] text-sm px-4 py-3 rounded-xl flex items-start gap-2">
+                  <div className="mt-0.5">⚠️</div>
+                  <p>{error}</p>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full justify-center py-3 text-base mt-2"
+                className="btn-primary w-full justify-center py-3.5 text-base shadow-glow hover:shadow-lg transition-all duration-300 mt-4"
               >
                 {loading ? (
                   <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
@@ -126,37 +162,19 @@ export default function StudentLogin() {
               </button>
             </form>
 
-            {/* Demo students */}
-            <div className="mt-5 p-4 bg-accent-50 rounded-xl border border-accent-200">
-              <p className="text-xs font-semibold text-accent-700 mb-3 uppercase tracking-wide">Demo Student Accounts</p>
-              <div className="space-y-2">
-                {DEMOS.map((d) => (
-                  <div key={d.id} className="flex items-center justify-between">
-                    <div className="text-xs text-navy-800">
-                      <span className="font-mono font-bold">{d.id}</span>
-                      <span className="text-silver-500 mx-1">—</span>
-                      <span>{d.name}</span>
-                    </div>
-                    <button
-                      onClick={() => fillDemo(d.id, d.pass)}
-                      className="text-xs text-accent-500 hover:text-accent-700 font-semibold underline"
-                    >
-                      Use
-                    </button>
-                  </div>
-                ))}
+            <div className="mt-8 pt-6 border-t border-silver-200">
+              <div className="bg-silver-50 border border-silver-200 rounded-xl p-4 text-center">
+                <p className="text-sm font-medium text-navy-800">
+                  Student ID and Password are provided by the Admin.
+                </p>
+                <p className="text-xs text-silver-500 mt-1">
+                  Please use these credentials to sign in to your account.
+                </p>
               </div>
+              <p className="text-center mt-4 text-xs text-silver-400">
+                Contact your institute administrator if you have forgotten your password.
+              </p>
             </div>
-
-            <p className="text-center mt-5 text-sm text-silver-500">
-              Admin?{' '}
-              <Link to="/admin/login" className="text-accent-500 font-semibold hover:underline">
-                Admin Login
-              </Link>
-            </p>
-            <p className="text-center mt-2 text-xs text-silver-400">
-              No self-registration. Accounts are created by admin.
-            </p>
           </div>
         </div>
       </div>

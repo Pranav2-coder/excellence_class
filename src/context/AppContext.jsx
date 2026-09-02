@@ -68,14 +68,14 @@ export function AppProvider({ children }) {
   const logoutStudent = () => setStudentAuth(null);
 
   // Add a new student
-  const addStudent = async ({ name, mobile, course, yearlyFee }) => {
+  const addStudent = async ({ id, name, mobile, course, yearlyFee, password }) => {
     const newStudent = {
-      id:        generateStudentId(students),
+      id:        id || generateStudentId(students),
       name,
       mobile,
       course,
       yearlyFee: Number(yearlyFee),
-      password:  'pass123',
+      password:  password || 'pass123',
       joinDate:  new Date().toISOString().split('T')[0],
       payments:  [],
     };
@@ -180,6 +180,59 @@ export function AppProvider({ children }) {
     return all.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, limit);
   };
 
+  // ── Chart data computed from real payments ─────────────────
+  const getMonthlyChartData = () => {
+    // Build last-6-months labels
+    const months = [];
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({
+        key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+        label: d.toLocaleString('en-IN', { month: 'short' }),
+        collected: 0,
+        target: 0,
+      });
+    }
+
+    // Sum collected per month from real payments
+    students.forEach((s) => {
+      // Monthly target = yearly_fee / 12
+      const monthlyTarget = Math.round(s.yearlyFee / 12);
+      months.forEach((m) => { m.target += monthlyTarget; });
+
+      s.payments.forEach((p) => {
+        const key = p.date.slice(0, 7); // 'YYYY-MM'
+        const slot = months.find((m) => m.key === key);
+        if (slot) slot.collected += p.amount;
+      });
+    });
+
+    return months.map(({ label, collected, target }) => ({ month: label, collected, target }));
+  };
+
+  const getCourseChartData = () => {
+    if (!students.length) return [];
+    const counts = {};
+    students.forEach((s) => {
+      // Shorten long course names for the legend
+      const short = s.course
+        .replace('Foundation', 'Found.')
+        .replace('Preparation', 'Prep.')
+        .replace('Training', 'Train.')
+        .replace('Class ', 'Cls ');
+      counts[short] = (counts[short] || 0) + 1;
+    });
+    const total = students.length;
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({
+        name,
+        value: Math.round((count / total) * 100),
+        count,
+      }));
+  };
+
   const value = {
     // auth
     adminAuth, loginAdmin, logoutAdmin,
@@ -193,6 +246,8 @@ export function AppProvider({ children }) {
     getStudent,
     getTotals,
     getRecentPayments,
+    getMonthlyChartData,
+    getCourseChartData,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

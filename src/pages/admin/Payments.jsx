@@ -28,23 +28,23 @@ export default function PaymentsPage() {
     <div className="flex h-screen overflow-hidden bg-silver-100">
       <Sidebar />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden">
         {/* Top bar */}
-        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-silver-300/60 px-6 py-4 flex items-center justify-between">
-          <div className="lg:pl-0 pl-12 flex items-center gap-2">
-            <CreditCard size={20} className="text-accent-500" />
-            <h1 className="text-xl font-bold text-navy-950">All Payments</h1>
-            <span className="badge-info ml-2">{filtered.length} records</span>
+        <div className="topbar">
+          <div className="lg:pl-0 pl-12 flex items-center gap-2 min-w-0">
+            <CreditCard size={22} className="text-accent-500 flex-shrink-0" />
+            <h1 className="text-xl lg:text-2xl font-black text-navy-900 tracking-tight truncate">All Payments</h1>
+            <span className="badge-info ml-1 flex-shrink-0">{filtered.length}</span>
           </div>
           <DemoBadge />
         </div>
 
-        <div className="p-6 max-w-7xl mx-auto space-y-5">
+        <div className="page-content space-y-4">
           {/* Summary + Search */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="card flex-1 flex items-center gap-4 py-4 animate-slide-up">
               <div className="bg-emerald-50 p-3 rounded-xl">
-                <CreditCard size={22} className="text-emerald-500" />
+                <CreditCard size={22} className="text-emerald-600" />
               </div>
               <div>
                 <p className="text-xs text-silver-500 font-medium">Total Shown</p>
