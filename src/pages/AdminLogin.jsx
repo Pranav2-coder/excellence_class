@@ -9,8 +9,8 @@ export default function AdminLogin() {
   const navigate = useNavigate();
   const { loginAdmin } = useApp();
 
-  const [email,    setEmail]    = useState('');
-  const [password, setPassword] = useState('');
+  const [email,    setEmail]    = useState(localStorage.getItem('admin_email_cache') || '');
+  const [password, setPassword] = useState(localStorage.getItem('admin_pwd_cache') || '');
   const [showPw,   setShowPw]   = useState(false);
   const [error,    setError]    = useState('');
   const [loading,  setLoading]  = useState(false);
@@ -27,6 +27,8 @@ export default function AdminLogin() {
       email.trim().toLowerCase() === ADMIN_CREDENTIAL.email &&
       password === ADMIN_CREDENTIAL.password
     ) {
+      localStorage.setItem('admin_email_cache', email.trim().toLowerCase());
+      localStorage.setItem('admin_pwd_cache', password);
       loginAdmin();
       navigate('/admin/dashboard');
     } else {
