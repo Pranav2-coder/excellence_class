@@ -7,8 +7,8 @@ export default function StudentLogin() {
   const navigate = useNavigate();
   const { loginStudent } = useApp();
 
-  const [studentId, setStudentId] = useState('');
-  const [password,  setPassword]  = useState('');
+  const [studentId, setStudentId] = useState(localStorage.getItem('student_id_cache') || '');
+  const [password,  setPassword]  = useState(localStorage.getItem('student_pwd_cache') || '');
   const [showPw,    setShowPw]    = useState(false);
   const [error,     setError]     = useState('');
   const [loading,   setLoading]   = useState(false);
@@ -23,6 +23,8 @@ export default function StudentLogin() {
 
     const success = loginStudent(studentId.trim().toUpperCase(), password);
     if (success) {
+      localStorage.setItem('student_id_cache', studentId.trim().toUpperCase());
+      localStorage.setItem('student_pwd_cache', password);
       navigate('/student/dashboard');
     } else {
       setError('Invalid Student ID or password.');
