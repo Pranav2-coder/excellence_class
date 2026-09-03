@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   GraduationCap, BarChart3, Users, CreditCard, Shield,
@@ -60,6 +61,28 @@ const STATS = [
 
 export default function Landing() {
   const navigate = useNavigate();
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      console.log('User accepted the install prompt');
+    }
+    setInstallPrompt(null);
+  };
 
   return (
     <div className="min-h-screen bg-white font-sans">
@@ -80,6 +103,13 @@ export default function Landing() {
 
           <div className="flex items-center gap-3">
             <DemoBadge />
+
+            {installPrompt && (
+              <button onClick={handleInstallClick} className="bg-[#84cc16] hover:bg-[#65a30d] text-white px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-xs sm:text-sm flex items-center gap-1 sm:gap-2">
+                <Smartphone size={16} />
+                Install
+              </button>
+            )}
 
             <button onClick={() => navigate('/student/login')} className="btn-secondary hidden sm:flex">
               Student Login
@@ -113,6 +143,16 @@ export default function Landing() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              
+              {installPrompt && (
+                <button
+                  onClick={handleInstallClick}
+                  className="bg-[#84cc16] hover:bg-[#65a30d] text-white font-semibold px-8 py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-base shadow-glow"
+                >
+                  <Smartphone size={18} />
+                  Install App
+                </button>
+              )}
 
               <button
                 onClick={() => navigate('/student/login')}
