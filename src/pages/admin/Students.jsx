@@ -12,7 +12,7 @@ import { formatCurrency, calcPaid, calcRemaining, COURSES } from '../../data/moc
 
 function AddStudentModal({ isOpen, onClose }) {
   const { addStudent } = useApp();
-  const [form, setForm] = useState({ id: '', name: '', mobile: '', course: COURSES[0], yearlyFee: '', password: '' });
+  const [form, setForm] = useState({ id: '', name: '', mobile: '', course: COURSES[0], subCourse: 'MHTCET', yearlyFee: '', password: '' });
   const [errors, setErrors] = useState({});
 
   const validate = () => {
@@ -31,9 +31,12 @@ function AddStudentModal({ isOpen, onClose }) {
     e.preventDefault();
     if (!validate()) return;
     try {
-      const student = await addStudent({ ...form, id: form.id.trim(), password: form.password.trim() });
+      const finalCourse = (form.course === '11th Science' || form.course === '12th Science') 
+        ? `${form.course} - ${form.subCourse}` 
+        : form.course;
+      const student = await addStudent({ ...form, id: form.id.trim(), password: form.password.trim(), course: finalCourse });
       toast.success(`✅ Student ${student.name} added!`);
-      setForm({ id: '', name: '', mobile: '', course: COURSES[0], yearlyFee: '', password: '' });
+      setForm({ id: '', name: '', mobile: '', course: COURSES[0], subCourse: 'MHTCET', yearlyFee: '', password: '' });
       setErrors({});
       onClose();
     } catch (err) {
@@ -89,6 +92,21 @@ function AddStudentModal({ isOpen, onClose }) {
           </select>
         </div>
 
+        {(form.course === '11th Science' || form.course === '12th Science') && (
+          <div>
+            <label className="label">Specialization *</label>
+            <select
+              className="input"
+              value={form.subCourse}
+              onChange={(e) => setForm({ ...form, subCourse: e.target.value })}
+            >
+              <option>MHTCET</option>
+              <option>JEE</option>
+              <option>NEET</option>
+            </select>
+          </div>
+        )}
+
         <div>
           <label className="label">Yearly Fee (₹) *</label>
           <input
@@ -137,7 +155,7 @@ export default function StudentsPage() {
       s.name.toLowerCase().includes(q) ||
       s.id.toLowerCase().includes(q) ||
       s.mobile.includes(q);
-    const matchCourse = courseFilter === 'All' || s.course === courseFilter;
+    const matchCourse = courseFilter === 'All' || s.course.startsWith(courseFilter);
     return matchSearch && matchCourse;
   });
 

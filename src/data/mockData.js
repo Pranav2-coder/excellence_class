@@ -3,13 +3,16 @@
 // ============================================================
 
 export const COURSES = [
-  'JEE Foundation',
-  'NEET Preparation',
-  'Class 10 Board',
-  'Class 12 PCM',
-  'Class 12 PCB',
-  'Foundation Batch',
-  'Olympiad Training',
+  '8th CBSE',
+  '8th State',
+  '9th CBSE',
+  '9th State',
+  '10th CBSE',
+  '10th State',
+  '11th Science',
+  '11th Commerce',
+  '12th Science',
+  '12th Commerce',
 ];
 
 export const PAYMENT_MODES = ['Cash', 'UPI', 'Bank Transfer', 'Cheque', 'Online'];
