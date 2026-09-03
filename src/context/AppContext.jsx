@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { generatePaymentId, generateStudentId } from '../data/mockData';
 import { supabase } from '../lib/supabase';
 
+
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
@@ -12,6 +13,32 @@ export function AppProvider({ children }) {
   // ── Data state ──────────────────────────────────────────────
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Restore Supabase Auth session on page load, and listen for changes
+  useEffect(() => {
+    // Get current session (handles page refresh)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        // Verify this is actually the admin before trusting the session
+        supabase
+          .from('admin_profiles')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .eq('role', 'admin')
+          .maybeSingle()
+          .then(({ data }) => {
+            if (data) setAdminAuth(true);
+          });
+      }
+    });
+
+    // Listen for sign-in / sign-out events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) setAdminAuth(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -53,7 +80,12 @@ export function AppProvider({ children }) {
 
   // ── Admin Actions ───────────────────────────────────────────
   const loginAdmin = () => setAdminAuth(true);
-  const logoutAdmin = () => setAdminAuth(false);
+  const logoutAdmin = async () => {
+    await supabase.auth.signOut();
+    setAdminAuth(false);
+    // Clear convenience cache but never store passwords
+    localStorage.removeItem('admin_email_cache');
+  };
 
   const loginStudent = (studentId, password) => {
     const searchId = studentId.trim().toUpperCase();
