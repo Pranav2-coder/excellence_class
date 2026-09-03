@@ -80,9 +80,7 @@ export default function Landing() {
 
           <div className="flex items-center gap-3">
             <DemoBadge />
-            <button onClick={() => navigate('/admin/login')} className="btn-primary hidden sm:flex">
-              Admin Login
-            </button>
+
             <button onClick={() => navigate('/student/login')} className="btn-secondary hidden sm:flex">
               Student Login
             </button>
@@ -115,13 +113,7 @@ export default function Landing() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => navigate('/admin/login')}
-                className="bg-accent-500 hover:bg-accent-600 text-white font-semibold px-8 py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-base shadow-glow"
-              >
-                <Shield size={18} />
-                Admin Login
-              </button>
+
               <button
                 onClick={() => navigate('/student/login')}
                 className="glass text-white font-semibold px-8 py-3.5 rounded-xl hover:bg-white/15 transition-all duration-200 flex items-center justify-center gap-2 text-base"
