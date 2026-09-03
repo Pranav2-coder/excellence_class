@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { GraduationCap, Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck } from 'lucide-react';
+import { GraduationCap, Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, Smartphone } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ADMIN_CREDENTIAL } from '../data/mockData';
 import DemoBadge from '../components/DemoBadge';
@@ -14,6 +14,28 @@ export default function AdminLogin() {
   const [showPw,   setShowPw]   = useState(false);
   const [error,    setError]    = useState('');
   const [loading,  setLoading]  = useState(false);
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      console.log('User accepted the install prompt');
+    }
+    setInstallPrompt(null);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -145,6 +167,17 @@ export default function AdminLogin() {
                   </svg>
                 ) : 'Sign In to Admin Panel'}
               </button>
+
+              {installPrompt && (
+                <button
+                  type="button"
+                  onClick={handleInstallClick}
+                  className="w-full justify-center py-3 text-base flex items-center gap-2 bg-[#84cc16] hover:bg-[#65a30d] text-white font-semibold rounded-xl transition-all duration-300 mt-4 shadow-glow"
+                >
+                  <Smartphone size={18} />
+                  Install Admin App
+                </button>
+              )}
             </form>
 
 
