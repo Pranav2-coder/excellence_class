@@ -56,8 +56,9 @@ export function AppProvider({ children }) {
   const logoutAdmin = () => setAdminAuth(false);
 
   const loginStudent = (studentId, password) => {
+    const searchId = studentId.trim().toUpperCase();
     const found = students.find(
-      (s) => s.id === studentId && s.password === password
+      (s) => s.id.toUpperCase() === searchId && s.password === password
     );
     if (found) {
       setStudentAuth({ id: found.id, name: found.name });
