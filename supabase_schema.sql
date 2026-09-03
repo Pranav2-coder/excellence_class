@@ -46,9 +46,11 @@ alter table public.students enable row level security;
 alter table public.payments  enable row level security;
 
 -- Allow all operations with the anon key (demo / no-auth mode)
+drop policy if exists "allow_all_students" on public.students;
 create policy "allow_all_students" on public.students
   for all using (true) with check (true);
 
+drop policy if exists "allow_all_payments" on public.payments;
 create policy "allow_all_payments" on public.payments
   for all using (true) with check (true);
 
