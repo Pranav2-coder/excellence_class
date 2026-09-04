@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, CreditCard, Settings,
-  LogOut, GraduationCap, ChevronRight, X, Menu
+  LogOut, GraduationCap, ChevronRight, X, Menu, Smartphone
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -16,6 +16,22 @@ const NAV_ITEMS = [
 function SidebarContent({ onClose }) {
   const { logoutAdmin } = useApp();
   const navigate = useNavigate();
+
+  // ── PWA install prompt ──────────────────────────────────
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    setInstallPrompt(null);
+  };
 
   const handleLogout = () => {
     logoutAdmin();
@@ -73,6 +89,19 @@ function SidebarContent({ onClose }) {
           </NavLink>
         ))}
       </nav>
+
+      {/* Install App */}
+      {installPrompt && (
+        <div className="px-4 pb-2">
+          <button
+            onClick={handleInstall}
+            className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-lime-400 hover:text-white hover:bg-lime-500/20 transition-all font-semibold text-sm group border border-lime-500/20"
+          >
+            <Smartphone size={18} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+            <span>Install Admin App</span>
+          </button>
+        </div>
+      )}
 
       {/* Logout */}
       <div className="p-4 border-t border-white/5">

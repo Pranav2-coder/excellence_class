@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   GraduationCap, BarChart3, Users, CreditCard, Shield,
@@ -9,57 +10,73 @@ import DemoBadge from '../components/DemoBadge';
 const FEATURES = [
   {
     icon: Users,
-    title: 'Student Management',
-    desc: 'Effortlessly manage student profiles, courses, and contact details in one place.',
+    title: 'Student co-ordination',
+    desc: 'student can ask doubts and question semlessly, and teachers can answer them in one place.',
     color: 'text-accent-500',
     bg: 'bg-accent-50',
   },
   {
     icon: CreditCard,
-    title: 'Fee Collection & Tracking',
-    desc: 'Record and track fee payments with instant updates to balances and reports.',
+    title: 'Better Collaboration of teachers and students',
+    desc: 'Teachers can track student payments, send reminders, and update fee records seamlessly.',
     color: 'text-emerald-600',
     bg: 'bg-emerald-50',
   },
   {
     icon: BarChart3,
-    title: 'Analytics Dashboard',
-    desc: 'Visualise collections, pending fees, and growth trends with beautiful charts.',
+    title: 'PYQ Distribution',
+    desc: 'Access a comprehensive collection of previous year questions for effective exam preparation.',
     color: 'text-violet-500',
     bg: 'bg-violet-50',
   },
   {
     icon: Bell,
-    title: 'Payment Reminders',
-    desc: 'Automated reminders for due payments reduce manual follow-up work.',
+    title: 'Parents meeting',
+    desc: 'Schedule and manage parent-teacher meetings with ease.',
     color: 'text-amber-500',
     bg: 'bg-amber-50',
   },
   {
     icon: Shield,
-    title: 'Role-Based Access',
-    desc: 'Separate logins for admins and students with data privacy built in.',
+    title: 'Modern Classroom',
+    desc: 'Create a secure and interactive classroom environment for students and teachers.',
     color: 'text-sky-500',
     bg: 'bg-sky-50',
   },
   {
     icon: FileText,
-    title: 'Receipt & Reports',
-    desc: 'Generate and download payment receipts and monthly fee reports instantly.',
+    title: 'Experienced staff',
+    desc: 'Our team of experienced staff ensures smooth operations .',
     color: 'text-rose-500',
     bg: 'bg-rose-50',
   },
 ];
 
 const STATS = [
-  { label: 'Institutes using Excellence Coaching', value: '1,200+' },
-  { label: 'Fees processed monthly',  value: '₹18 Cr+' },
-  { label: 'Students managed',        value: '2.5 Lakh+' },
-  { label: 'Uptime guarantee',        value: '99.9%' },
+  { label: 'Facility', value: 'A+' },
+  { label: 'Students enrolled',  value: '2,000+' },
+  { label: 'more than 90%',        value: '500+' },
+  { label: 'Passing rate',        value: '100%' },
 ];
 
 export default function Landing() {
   const navigate = useNavigate();
+
+  // ── PWA install prompt ──────────────────────────────────
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    setInstallPrompt(null);
+  };
 
   return (
     <div className="min-h-screen bg-white font-sans">
@@ -102,18 +119,16 @@ export default function Landing() {
 
 
             <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-6">
-              Fee Management{' '}
+              excellence Coaching{' '}
               <span className="gradient-text">Made Effortless</span>{' '}
-              for Coaching Institutes
+              for students
             </h1>
 
             <p className="text-lg md:text-xl text-white mb-10 leading-relaxed max-w-2xl mx-auto">
-              A modern, all-in-one platform to manage students, track fee collections,
-              generate reports, and streamline your institute's finances.
+             A coaching for the student that having the best features for the student ,helps to increase the marks in curicullum and other things in one place.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-
               <button
                 onClick={() => navigate('/student/login')}
                 className="glass text-white font-semibold px-8 py-3.5 rounded-xl hover:bg-white/15 transition-all duration-200 flex items-center justify-center gap-2 text-base"
@@ -121,6 +136,16 @@ export default function Landing() {
                 <Users size={18} />
                 Student Login
               </button>
+
+              {installPrompt && (
+                <button
+                  onClick={handleInstall}
+                  className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-base bg-accent-500 hover:bg-accent-600 text-white transition-all duration-200 shadow-glow"
+                >
+                  <Smartphone size={18} />
+                  Install App
+                </button>
+              )}
             </div>
 
 
@@ -148,10 +173,10 @@ export default function Landing() {
           <div className="text-center mb-14">
             <p className="text-accent-500 font-semibold text-sm uppercase tracking-widest mb-3">Features</p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-navy-950 mb-4">
-              Everything you need to manage fees
+              Everything you need 
             </h2>
             <p className="text-silver-600 text-lg max-w-xl mx-auto">
-              From student onboarding to payment receipts — all in one premium platform.
+              From student onboarding to study doubts and parent-teacher meetings, our platform has it all.
             </p>
           </div>
 
@@ -181,11 +206,21 @@ export default function Landing() {
               <DemoBadge />
             </div>
             <p className="text-white text-sm">
-              © 2024 Excellence Coaching. All rights reserved.
+              © 2026 Excellence Coaching. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-white">
               <Globe size={16} />
-              <Smartphone size={16} />
+              {installPrompt ? (
+                <button
+                  onClick={handleInstall}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-accent-400 hover:text-accent-300 transition-colors"
+                >
+                  <Smartphone size={15} />
+                  Install App
+                </button>
+              ) : (
+                <Smartphone size={16} />
+              )}
             </div>
           </div>
         </div>
