@@ -29,9 +29,23 @@ function RouteLoading() {
 }
 
 function StartupRedirect() {
-  const { adminAuth, authLoading } = useApp();
+  const { adminAuth, authLoading, setActivePwaType } = useApp();
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const isAdminRoute = location.pathname.startsWith('/admin');
+    const href = isAdminRoute ? '/admin-manifest.json' : '/student-manifest.json';
+    const pwaType = isAdminRoute ? 'admin' : 'student';
+
+    document.querySelectorAll('link[rel="manifest"]').forEach((link) => link.remove());
+
+    const manifestLink = document.createElement('link');
+    manifestLink.rel = 'manifest';
+    manifestLink.href = href;
+    document.head.appendChild(manifestLink);
+    setActivePwaType(pwaType);
+  }, [location.pathname, setActivePwaType]);
 
   useEffect(() => {
     if (authLoading) return;

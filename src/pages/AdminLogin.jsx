@@ -12,7 +12,7 @@ import DemoBadge from '../components/DemoBadge';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const { loginAdmin, canInstallApp, installApp } = useApp();
+  const { loginAdmin, canInstallAdminApp, installApp } = useApp();
 
   // ── Admin-existence check ─────────────────────────────────
   const { adminExists, loading: setupLoading, error: setupError, refetch } = useAdminSetup();
@@ -340,14 +340,14 @@ export default function AdminLogin() {
                 </button>
 
                 {/* PWA install button */}
-                {canInstallApp && (
+                {canInstallAdminApp && (
                   <button
                     type="button"
                     onClick={installApp}
                     className="w-full justify-center py-3 text-base flex items-center gap-2 bg-[#84cc16] hover:bg-[#65a30d] text-white font-semibold rounded-xl transition-all duration-300 mt-4 shadow-glow"
                   >
                     <Smartphone size={18} />
-                    Install App
+                    Install Admin App
                   </button>
                 )}
               </form>

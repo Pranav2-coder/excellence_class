@@ -8,6 +8,9 @@ const isStandaloneDisplay = () =>
   window.matchMedia?.('(display-mode: standalone)').matches ||
   window.navigator.standalone === true;
 
+const getPwaTypeForPath = (pathname = window.location.pathname) =>
+  pathname.startsWith('/admin') ? 'admin' : 'student';
+
 export function AppProvider({ children }) {
   const [adminAuth, setAdminAuth] = useState(false);
   const [studentAuth, setStudentAuth] = useState(null);
@@ -18,18 +21,22 @@ export function AppProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const [installPrompt, setInstallPrompt] = useState(null);
+  const [installPromptType, setInstallPromptType] = useState(null);
   const [isInstalled, setIsInstalled] = useState(isStandaloneDisplay);
+  const [activePwaType, setActivePwaType] = useState(getPwaTypeForPath);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event) => {
       event.preventDefault();
       if (!isStandaloneDisplay()) {
         setInstallPrompt(event);
+        setInstallPromptType(getPwaTypeForPath());
       }
     };
 
     const handleAppInstalled = () => {
       setInstallPrompt(null);
+      setInstallPromptType(null);
       setIsInstalled(true);
     };
 
@@ -48,6 +55,7 @@ export function AppProvider({ children }) {
     installPrompt.prompt();
     const choice = await installPrompt.userChoice;
     setInstallPrompt(null);
+    setInstallPromptType(null);
     return choice?.outcome === 'accepted';
   };
 
@@ -331,7 +339,10 @@ export function AppProvider({ children }) {
     studentAuth,
     loginStudent,
     logoutStudent,
-    canInstallApp: Boolean(installPrompt) && !isInstalled,
+    activePwaType,
+    setActivePwaType,
+    canInstallStudentApp: Boolean(installPrompt) && installPromptType === 'student' && activePwaType === 'student' && !isInstalled,
+    canInstallAdminApp: Boolean(installPrompt) && installPromptType === 'admin' && activePwaType === 'admin' && !isInstalled,
     installApp,
     isInstalled,
     students,

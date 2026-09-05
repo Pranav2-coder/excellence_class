@@ -60,7 +60,7 @@ const STATS = [
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { canInstallApp, installApp } = useApp();
+  const { canInstallStudentApp, installApp } = useApp();
 
   return (
     <div className="min-h-screen bg-white font-sans">
@@ -121,13 +121,13 @@ export default function Landing() {
                 Student Login
               </button>
 
-              {canInstallApp && (
+              {canInstallStudentApp && (
                 <button
                   onClick={installApp}
                   className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-base bg-accent-500 hover:bg-accent-600 text-white transition-all duration-200 shadow-glow"
                 >
                   <Smartphone size={18} />
-                  Install Excellence App
+                  Install Student App
                 </button>
               )}
             </div>
@@ -194,13 +194,13 @@ export default function Landing() {
             </p>
             <div className="flex items-center gap-4 text-white">
               <Globe size={16} />
-              {canInstallApp ? (
+              {canInstallStudentApp ? (
                 <button
                   onClick={installApp}
                   className="flex items-center gap-1.5 text-xs font-semibold text-accent-400 hover:text-accent-300 transition-colors"
                 >
                   <Smartphone size={15} />
-                  Install Excellence App
+                  Install Student App
                 </button>
               ) : (
                 <Smartphone size={16} />
