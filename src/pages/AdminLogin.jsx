@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   GraduationCap, Mail, Lock, Eye, EyeOff,
@@ -12,7 +12,7 @@ import DemoBadge from '../components/DemoBadge';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const { loginAdmin } = useApp();
+  const { loginAdmin, canInstallApp, installApp } = useApp();
 
   // ── Admin-existence check ─────────────────────────────────
   const { adminExists, loading: setupLoading, error: setupError, refetch } = useAdminSetup();
@@ -30,25 +30,6 @@ export default function AdminLogin() {
   const [forgotMsg,     setForgotMsg]     = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
 
-  // ── PWA install ───────────────────────────────────────────
-  const [installPrompt, setInstallPrompt] = useState(null);
-
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    if (outcome === 'accepted') console.log('PWA install accepted');
-    setInstallPrompt(null);
-  };
 
   // ── Login ─────────────────────────────────────────────────
   const handleLogin = async (e) => {
@@ -359,14 +340,14 @@ export default function AdminLogin() {
                 </button>
 
                 {/* PWA install button */}
-                {installPrompt && (
+                {canInstallApp && (
                   <button
                     type="button"
-                    onClick={handleInstallClick}
+                    onClick={installApp}
                     className="w-full justify-center py-3 text-base flex items-center gap-2 bg-[#84cc16] hover:bg-[#65a30d] text-white font-semibold rounded-xl transition-all duration-300 mt-4 shadow-glow"
                   >
                     <Smartphone size={18} />
-                    Install Admin App
+                    Install App
                   </button>
                 )}
               </form>

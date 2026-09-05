@@ -1,7 +1,9 @@
 {
-  "name": "Excellence Coaching Admin",
-  "short_name": "Admin",
-  "start_url": "/admin/login",
+  "name": "Excellence Coaching",
+  "short_name": "Excellence",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",

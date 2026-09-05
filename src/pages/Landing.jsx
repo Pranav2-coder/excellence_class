@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   GraduationCap, BarChart3, Users, CreditCard, Shield,
-  ArrowRight, Zap, Bell, FileText,
-  ChevronRight, Globe, Smartphone
+  Bell, FileText, Globe, Smartphone
 } from 'lucide-react';
 import DemoBadge from '../components/DemoBadge';
+import { useApp } from '../context/AppContext';
 
 const FEATURES = [
   {
@@ -61,22 +60,7 @@ const STATS = [
 
 export default function Landing() {
   const navigate = useNavigate();
-
-  // ── PWA install prompt ──────────────────────────────────
-  const [installPrompt, setInstallPrompt] = useState(null);
-
-  useEffect(() => {
-    const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const handleInstall = async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    await installPrompt.userChoice;
-    setInstallPrompt(null);
-  };
+  const { canInstallApp, installApp } = useApp();
 
   return (
     <div className="min-h-screen bg-white font-sans">
@@ -137,13 +121,13 @@ export default function Landing() {
                 Student Login
               </button>
 
-              {installPrompt && (
+              {canInstallApp && (
                 <button
-                  onClick={handleInstall}
+                  onClick={installApp}
                   className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-base bg-accent-500 hover:bg-accent-600 text-white transition-all duration-200 shadow-glow"
                 >
                   <Smartphone size={18} />
-                  Install App
+                  Install Excellence App
                 </button>
               )}
             </div>
@@ -210,13 +194,13 @@ export default function Landing() {
             </p>
             <div className="flex items-center gap-4 text-white">
               <Globe size={16} />
-              {installPrompt ? (
+              {canInstallApp ? (
                 <button
-                  onClick={handleInstall}
+                  onClick={installApp}
                   className="flex items-center gap-1.5 text-xs font-semibold text-accent-400 hover:text-accent-300 transition-colors"
                 >
                   <Smartphone size={15} />
-                  Install App
+                  Install Excellence App
                 </button>
               ) : (
                 <Smartphone size={16} />

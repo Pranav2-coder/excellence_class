@@ -2,42 +2,104 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { generatePaymentId, generateStudentId } from '../data/mockData';
 import { supabase } from '../lib/supabase';
 
-
 const AppContext = createContext(null);
 
-export function AppProvider({ children }) {
-  // ── Auth state ──────────────────────────────────────────────
-  const [adminAuth, setAdminAuth] = useState(false);
-  const [studentAuth, setStudentAuth] = useState(null); // { id, name }
+const isStandaloneDisplay = () =>
+  window.matchMedia?.('(display-mode: standalone)').matches ||
+  window.navigator.standalone === true;
 
-  // ── Data state ──────────────────────────────────────────────
+export function AppProvider({ children }) {
+  const [adminAuth, setAdminAuth] = useState(false);
+  const [studentAuth, setStudentAuth] = useState(null);
+  const [hasSupabaseSession, setHasSupabaseSession] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Restore Supabase Auth session on page load, and listen for changes
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(isStandaloneDisplay);
+
   useEffect(() => {
-    // Get current session (handles page refresh)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        // Verify this is actually the admin before trusting the session
-        supabase
-          .from('admin_profiles')
-          .select('id')
-          .eq('user_id', session.user.id)
-          .eq('role', 'admin')
-          .maybeSingle()
-          .then(({ data }) => {
-            if (data) setAdminAuth(true);
-          });
+    const handleBeforeInstallPrompt = (event) => {
+      event.preventDefault();
+      if (!isStandaloneDisplay()) {
+        setInstallPrompt(event);
       }
+    };
+
+    const handleAppInstalled = () => {
+      setInstallPrompt(null);
+      setIsInstalled(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const installApp = async () => {
+    if (!installPrompt || isInstalled) return false;
+
+    installPrompt.prompt();
+    const choice = await installPrompt.userChoice;
+    setInstallPrompt(null);
+    return choice?.outcome === 'accepted';
+  };
+
+  const verifyAdminSession = async (session) => {
+    if (!session?.user) {
+      setHasSupabaseSession(false);
+      setAdminAuth(false);
+      return false;
+    }
+
+    setHasSupabaseSession(true);
+
+    const { data, error } = await supabase
+      .from('admin_profiles')
+      .select('id, role')
+      .eq('user_id', session.user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking admin profile:', error);
+      setAdminAuth(false);
+      return false;
+    }
+
+    const isAdmin = Boolean(data);
+    setAdminAuth(isAdmin);
+    return isAdmin;
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const restoreSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
+      await verifyAdminSession(session);
+      if (!cancelled) setAuthLoading(false);
+    };
+
+    restoreSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setAuthLoading(true);
+      await verifyAdminSession(session);
+      setAuthLoading(false);
     });
 
-    // Listen for sign-in / sign-out events
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) setAdminAuth(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -48,14 +110,14 @@ export function AppProvider({ children }) {
     setLoading(true);
     const { data: studentsData, error: sErr } = await supabase.from('students').select('*');
     const { data: paymentsData, error: pErr } = await supabase.from('payments').select('*');
-    
+
     if (sErr || pErr) {
       console.error('Error fetching data:', sErr || pErr);
       setLoading(false);
       return;
     }
 
-    const studentsWithPayments = studentsData.map(s => ({
+    const studentsWithPayments = studentsData.map((s) => ({
       id: s.id,
       name: s.name,
       mobile: s.mobile,
@@ -64,26 +126,25 @@ export function AppProvider({ children }) {
       password: s.password,
       joinDate: s.join_date,
       payments: paymentsData
-        .filter(p => p.student_id === s.id)
-        .map(p => ({
+        .filter((p) => p.student_id === s.id)
+        .map((p) => ({
           id: p.id,
           amount: Number(p.amount),
           date: p.date,
           mode: p.mode,
-          note: p.note
-        }))
+          note: p.note,
+        })),
     }));
 
     setStudents(studentsWithPayments);
     setLoading(false);
   };
 
-  // ── Admin Actions ───────────────────────────────────────────
   const loginAdmin = () => setAdminAuth(true);
+
   const logoutAdmin = async () => {
     await supabase.auth.signOut();
     setAdminAuth(false);
-    // Clear convenience cache but never store passwords
     localStorage.removeItem('admin_email_cache');
   };
 
@@ -92,25 +153,27 @@ export function AppProvider({ children }) {
     const found = students.find(
       (s) => s.id.toUpperCase() === searchId && s.password === password
     );
+
     if (found) {
       setStudentAuth({ id: found.id, name: found.name });
       return true;
     }
+
     return false;
   };
+
   const logoutStudent = () => setStudentAuth(null);
 
-  // Add a new student
   const addStudent = async ({ id, name, mobile, course, yearlyFee, password }) => {
     const newStudent = {
-      id:        id || generateStudentId(students),
+      id: id || generateStudentId(students),
       name,
       mobile,
       course,
       yearlyFee: Number(yearlyFee),
-      password:  password || 'pass123',
-      joinDate:  new Date().toISOString().split('T')[0],
-      payments:  [],
+      password: password || 'pass123',
+      joinDate: new Date().toISOString().split('T')[0],
+      payments: [],
     };
 
     const { error } = await supabase.from('students').insert([{
@@ -132,14 +195,13 @@ export function AppProvider({ children }) {
     return newStudent;
   };
 
-  // Add a payment to a student
   const addPayment = async (studentId, { amount, date, mode, note }) => {
     const newPayment = {
-      id:     generatePaymentId(),
+      id: generatePaymentId(),
       amount: Number(amount),
       date,
       mode,
-      note:   note || '',
+      note: note || '',
     };
 
     const { error } = await supabase.from('payments').insert([{
@@ -167,39 +229,36 @@ export function AppProvider({ children }) {
     );
   };
 
-  // Delete a student
   const deleteStudent = async (studentId) => {
-    // 1. Delete associated payments first (prevents Foreign Key errors if ON DELETE CASCADE is missing)
     const { error: paymentsError } = await supabase.from('payments').delete().eq('student_id', studentId);
     if (paymentsError) {
       console.error(paymentsError);
       throw paymentsError;
     }
 
-    // 2. Delete the student
     const { error: studentError } = await supabase.from('students').delete().eq('id', studentId);
     if (studentError) {
       console.error(studentError);
       throw studentError;
     }
-    
+
     setStudents((prev) => prev.filter((s) => s.id !== studentId));
   };
 
-  // ── Derived helpers ─────────────────────────────────────────
   const getStudent = (id) => students.find((s) => s.id === id);
 
   const getTotals = () => {
-    const totalFees     = students.reduce((s, st) => s + st.yearlyFee, 0);
+    const totalFees = students.reduce((s, st) => s + st.yearlyFee, 0);
     const totalCollected = students.reduce(
       (s, st) => s + st.payments.reduce((a, p) => a + p.amount, 0),
       0
     );
+
     return {
-      totalStudents:  students.length,
+      totalStudents: students.length,
       totalFees,
       totalCollected,
-      totalPending:   totalFees - totalCollected,
+      totalPending: totalFees - totalCollected,
     };
   };
 
@@ -213,9 +272,7 @@ export function AppProvider({ children }) {
     return all.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, limit);
   };
 
-  // ── Chart data computed from real payments ─────────────────
   const getMonthlyChartData = () => {
-    // Build last-6-months labels
     const months = [];
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
@@ -228,14 +285,12 @@ export function AppProvider({ children }) {
       });
     }
 
-    // Sum collected per month from real payments
     students.forEach((s) => {
-      // Monthly target = yearly_fee / 12
       const monthlyTarget = Math.round(s.yearlyFee / 12);
       months.forEach((m) => { m.target += monthlyTarget; });
 
       s.payments.forEach((p) => {
-        const key = p.date.slice(0, 7); // 'YYYY-MM'
+        const key = p.date.slice(0, 7);
         const slot = months.find((m) => m.key === key);
         if (slot) slot.collected += p.amount;
       });
@@ -246,9 +301,9 @@ export function AppProvider({ children }) {
 
   const getCourseChartData = () => {
     if (!students.length) return [];
+
     const counts = {};
     students.forEach((s) => {
-      // Shorten long course names for the legend
       const short = s.course
         .replace('Foundation', 'Found.')
         .replace('Preparation', 'Prep.')
@@ -256,6 +311,7 @@ export function AppProvider({ children }) {
         .replace('Class ', 'Cls ');
       counts[short] = (counts[short] || 0) + 1;
     });
+
     const total = students.length;
     return Object.entries(counts)
       .sort((a, b) => b[1] - a[1])
@@ -267,10 +323,17 @@ export function AppProvider({ children }) {
   };
 
   const value = {
-    // auth
-    adminAuth, loginAdmin, logoutAdmin,
-    studentAuth, loginStudent, logoutStudent,
-    // data
+    adminAuth,
+    hasSupabaseSession,
+    authLoading,
+    loginAdmin,
+    logoutAdmin,
+    studentAuth,
+    loginStudent,
+    logoutStudent,
+    canInstallApp: Boolean(installPrompt) && !isInstalled,
+    installApp,
+    isInstalled,
     students,
     loading,
     addStudent,
