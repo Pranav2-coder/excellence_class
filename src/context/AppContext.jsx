@@ -1,8 +1,7 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { generatePaymentId, generateStudentId } from '../data/mockData';
 import { supabase } from '../lib/supabase';
-
-const AppContext = createContext(null);
+import { AppContext } from './Context';
 
 const isStandaloneDisplay = () =>
   window.matchMedia?.('(display-mode: standalone)').matches ||
@@ -110,12 +109,8 @@ export function AppProvider({ children }) {
     };
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
+  async function fetchData(isRefetch = false) {
+    if (isRefetch === true) setLoading(true);
     const { data: studentsData, error: sErr } = await supabase.from('students').select('*');
     const { data: paymentsData, error: pErr } = await supabase.from('payments').select('*');
 
@@ -146,7 +141,11 @@ export function AppProvider({ children }) {
 
     setStudents(studentsWithPayments);
     setLoading(false);
-  };
+  }
+
+  useEffect(() => {
+    Promise.resolve().then(() => fetchData());
+  }, []);
 
   const loginAdmin = () => setAdminAuth(true);
 
@@ -359,9 +358,3 @@ export function AppProvider({ children }) {
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
-
-export const useApp = () => {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('useApp must be used inside AppProvider');
-  return ctx;
-};

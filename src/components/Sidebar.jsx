@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, CreditCard, Settings,
   LogOut, GraduationCap, ChevronRight, X, Menu
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../hooks/useApp';
 
 const NAV_ITEMS = [
   { to: '/admin/dashboard', label: 'Dashboard',  icon: LayoutDashboard },

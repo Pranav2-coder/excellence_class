@@ -4,7 +4,7 @@ import {
   GraduationCap, Mail, Lock, Eye, EyeOff,
   ArrowLeft, ShieldCheck, Smartphone,
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../hooks/useApp';
 import { useAdminSetup } from '../hooks/useAdminSetup';
 import { supabase } from '../lib/supabase';
 import SetupAdminForm from '../components/SetupAdminForm';
@@ -223,7 +223,7 @@ export default function AdminLogin() {
                       value={forgotEmail}
                       onChange={(e) => setForgotEmail(e.target.value)}
                       placeholder="admin@example.com"
-                      className="input pl-10"
+                      className="input !pl-10"
                       autoComplete="email"
                       disabled={forgotLoading}
                     />
@@ -277,7 +277,7 @@ export default function AdminLogin() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="admin@example.com"
-                      className="input pl-10"
+                      className="input !pl-10"
                       autoComplete="email"
                       disabled={loading}
                     />
@@ -294,7 +294,7 @@ export default function AdminLogin() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter password"
-                      className="input pl-10 pr-10"
+                      className="input !pl-10 !pr-10"
                       autoComplete="current-password"
                       disabled={loading}
                     />

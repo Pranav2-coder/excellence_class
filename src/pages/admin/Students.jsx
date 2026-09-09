@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Eye, Users, ChevronRight } from 'lucide-react';
+import { Search, Plus, Eye, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import Sidebar    from '../../components/Sidebar';
 import Modal      from '../../components/Modal';
 import DemoBadge  from '../../components/DemoBadge';
 import ProgressBar from '../../components/ProgressBar';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../hooks/useApp';
 import { formatCurrency, calcPaid, calcRemaining, COURSES } from '../../data/mockData';
 
 function AddStudentModal({ isOpen, onClose }) {
@@ -39,7 +39,7 @@ function AddStudentModal({ isOpen, onClose }) {
       setForm({ id: '', name: '', mobile: '', course: COURSES[0], subCourse: 'MHTCET', yearlyFee: '', password: '' });
       setErrors({});
       onClose();
-    } catch (err) {
+    } catch {
       toast.error('Failed to add student to database.');
     }
   };
@@ -188,7 +188,7 @@ export default function StudentsPage() {
             <div className="relative flex-1">
               <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-500" />
               <input
-                className="input pl-10 bg-white"
+                className="input !pl-10 bg-white"
                 placeholder="Search by name, ID, or mobile..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

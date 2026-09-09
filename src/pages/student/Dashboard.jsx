@@ -1,13 +1,32 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Menu, Bell, ChevronRight, FileText, CheckCircle2, Wallet,
-  Calendar, Download, Megaphone, Home, CreditCard, Receipt, User, Clock,
-  LogOut, Phone, Mail, MapPin
+  ChevronRight, FileText, CheckCircle2, Wallet,
+  Download, Home, CreditCard, Receipt, User,
+  LogOut, Phone
 } from 'lucide-react';
 
-import { useApp }  from '../../context/AppContext';
+import { useApp } from '../../hooks/useApp';
 import { formatCurrency, calcPaid, calcRemaining } from '../../data/mockData';
+
+function NavItem({ id, icon: Icon, label, activeTab, onChange }) {
+  const isActive = activeTab === id;
+  return (
+    <button
+      onClick={() => onChange(id)}
+      className="relative flex flex-col items-center justify-center w-full py-2 group"
+    >
+      <div className={`flex flex-col items-center transition-all duration-300 ${isActive ? '-translate-y-1' : ''}`}>
+        <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'text-[#000000]' : 'text-silver-500 group-hover:text-navy-900'}`}>
+          <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+        </div>
+        <span className={`text-[10px] font-semibold mt-0.5 transition-all duration-300 ${isActive ? 'text-[#000000] opacity-100' : 'text-silver-500 opacity-0 transform translate-y-1'}`}>
+          {label}
+        </span>
+      </div>
+    </button>
+  );
+}
 
 export default function StudentDashboard() {
   const { studentAuth, logoutStudent, getStudent } = useApp();
@@ -129,25 +148,6 @@ export default function StudentDashboard() {
     document.body.removeChild(a);
   };
 
-  const NavItem = ({ id, icon: Icon, label }) => {
-    const isActive = activeTab === id;
-    return (
-      <button
-        onClick={() => setActiveTab(id)}
-        className="relative flex flex-col items-center justify-center w-full py-2 group"
-      >
-        <div className={`flex flex-col items-center transition-all duration-300 ${isActive ? '-translate-y-1' : ''}`}>
-          <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'text-[#000000]' : 'text-black group-hover:text-black'}`}>
-            <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
-          </div>
-          <span className={`text-[10px] font-semibold mt-0.5 transition-all duration-300 ${isActive ? 'text-[#000000] opacity-100' : 'text-black opacity-0 transform translate-y-1'}`}>
-            {label}
-          </span>
-        </div>
-      </button>
-    );
-  };
-
   return (
     <div className="min-h-screen bg-[#ffffff] font-sans pb-24 text-black selection:bg-[#84cc16]">
       
@@ -166,7 +166,7 @@ export default function StudentDashboard() {
               <span className="bg-white text-black px-2.5 py-1 rounded-lg text-[11px] font-semibold tracking-wide border border-black shadow-sm">
                 ID: {student.id}
               </span>
-              <span className="bg-[#000000]/5 text-[#000000] px-2.5 py-1 rounded-lg text-[11px] font-semibold tracking-wide border border-[#000000]/10 shadow-sm">
+              <span className="bg-navy-950/10 text-navy-900 px-2.5 py-1 rounded-lg text-[11px] font-semibold tracking-wide border border-[#000000]/10 shadow-sm">
                 {student.course}
               </span>
             </div>
@@ -243,7 +243,7 @@ export default function StudentDashboard() {
                 {sorted.length === 0 ? (
                   <div className="p-8 text-center text-black text-sm font-medium">No payments yet.</div>
                 ) : (
-                  sorted.slice(0, 3).map((p, i) => {
+                  sorted.slice(0, 3).map((p) => {
                     const d = new Date(p.date);
                     const monthYear = d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
                     const day = d.toLocaleDateString('en-GB', { day: '2-digit' });
@@ -251,7 +251,7 @@ export default function StudentDashboard() {
                     return (
                       <div key={p.id} className="group flex items-center justify-between p-3 rounded-2xl hover:bg-[#ffffff] transition-colors cursor-pointer">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-[#84cc16] text-[#84cc16] flex items-center justify-center shrink-0 border border-[#84cc16]/50">
+                          <div className="w-12 h-12 rounded-2xl bg-accent-100 text-accent-700 flex items-center justify-center shrink-0 border border-[#84cc16]/50">
                             <CheckCircle2 size={22} strokeWidth={2.5} />
                           </div>
                           <div>
@@ -303,7 +303,7 @@ export default function StudentDashboard() {
                   return (
                     <div key={p.id} className="group flex items-center justify-between p-4 rounded-2xl hover:bg-[#ffffff] transition-colors cursor-pointer border-b border-black last:border-0">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[#84cc16] text-[#84cc16] flex items-center justify-center shrink-0 border border-[#84cc16]/50">
+                        <div className="w-12 h-12 rounded-2xl bg-accent-100 text-accent-700 flex items-center justify-center shrink-0 border border-[#84cc16]/50">
                           <CheckCircle2 size={22} strokeWidth={2.5} />
                         </div>
                         <div>
@@ -344,7 +344,7 @@ export default function StudentDashboard() {
                   return (
                     <div key={p.id} className="bg-white border border-black/60 rounded-[20px] p-5 shadow-sm hover:shadow-md transition-all flex items-center justify-between group cursor-pointer">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[#84cc16] text-[#84cc16] flex items-center justify-center shrink-0 border border-[#84cc16]/50 group-hover:scale-105 transition-transform">
+                        <div className="w-12 h-12 rounded-2xl bg-accent-100 text-accent-700 flex items-center justify-center shrink-0 border border-[#84cc16]/50 group-hover:scale-105 transition-transform">
                           <Receipt size={22} strokeWidth={2.5} />
                         </div>
                         <div>
@@ -384,7 +384,7 @@ export default function StudentDashboard() {
                   <span className="bg-[#ffffff] text-black px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-wide border border-black">
                     ID: {student.id}
                   </span>
-                  <span className="bg-[#84cc16] text-[#84cc16] px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-wide border border-[#84cc16]">
+                  <span className="bg-accent-100 text-accent-700 px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-wide border border-[#84cc16]">
                     Active Student
                   </span>
                 </div>
@@ -397,7 +397,7 @@ export default function StudentDashboard() {
 
               
               <div className="flex items-center gap-4 p-3 rounded-2xl hover:bg-[#ffffff] transition-colors cursor-pointer">
-                <div className="w-10 h-10 rounded-xl bg-[#84cc16] text-[#84cc16] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-accent-100 text-accent-700 flex items-center justify-center shrink-0">
                   <Phone size={18} strokeWidth={2.5} />
                 </div>
                 <div>
@@ -414,7 +414,7 @@ export default function StudentDashboard() {
                 logoutStudent();
                 navigate('/student/login', { replace: true });
               }}
-              className="w-full flex items-center justify-center gap-2 bg-white border border-[#84cc16] text-[#84cc16] px-4 py-4 rounded-[20px] text-sm font-bold shadow-sm hover:bg-[#84cc16] hover:border-[#84cc16] transition-all group"
+              className="w-full flex items-center justify-center gap-2 bg-white border border-accent-500 text-accent-600 px-4 py-4 rounded-[20px] text-sm font-bold shadow-sm hover:bg-accent-500 hover:text-white hover:border-accent-500 transition-all group"
             >
               <LogOut size={18} strokeWidth={2.5} className="group-hover:-translate-x-1 transition-transform" />
               Sign Out Securely
@@ -426,10 +426,10 @@ export default function StudentDashboard() {
 
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-black/50 flex justify-around items-center px-4 pb-safe pt-3 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.04)] max-w-lg mx-auto rounded-t-3xl">
-        <NavItem id="home" icon={Home} label="Home" />
-        <NavItem id="payments" icon={CreditCard} label="Payments" />
-        <NavItem id="receipts" icon={Receipt} label="Receipts" />
-        <NavItem id="profile" icon={User} label="Profile" />
+        <NavItem id="home" icon={Home} label="Home" activeTab={activeTab} onChange={setActiveTab} />
+        <NavItem id="payments" icon={CreditCard} label="Payments" activeTab={activeTab} onChange={setActiveTab} />
+        <NavItem id="receipts" icon={Receipt} label="Receipts" activeTab={activeTab} onChange={setActiveTab} />
+        <NavItem id="profile" icon={User} label="Profile" activeTab={activeTab} onChange={setActiveTab} />
         {/* iOS Home Indicator space */}
         <div className="w-1/3 h-1 bg-white rounded-full absolute bottom-2 left-1/3"></div>
       </nav>

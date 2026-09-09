@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { GraduationCap, User, Lock, Eye, EyeOff, ArrowLeft, BookOpen, Clock, FileText } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../hooks/useApp';
 
 export default function StudentLogin() {
   const navigate = useNavigate();
@@ -115,7 +115,7 @@ export default function StudentLogin() {
                     value={studentId}
                     onChange={(e) => setStudentId(e.target.value)}
                     placeholder="e.g. STU001"
-                    className="input pl-11 uppercase py-3.5 text-base border-silver-300 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20"
+                    className="input !pl-11 uppercase py-3.5 text-base border-silver-300 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20"
                     autoComplete="username"
                   />
                 </div>
@@ -130,7 +130,7 @@ export default function StudentLogin() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="input pl-11 pr-11 py-3.5 text-base border-silver-300 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20"
+                    className="input !pl-11 !pr-11 py-3.5 text-base border-silver-300 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20"
                     autoComplete="current-password"
                   />
                   <button
@@ -144,7 +144,7 @@ export default function StudentLogin() {
               </div>
 
               {error && (
-                <div className="bg-[#84cc16] border border-[#84cc16] text-[#84cc16] text-sm px-4 py-3 rounded-xl flex items-start gap-2">
+                <div className="bg-rose-50 border border-rose-200 text-rose-600 text-sm px-4 py-3 rounded-xl flex items-start gap-2">
                   <div className="mt-0.5">⚠️</div>
                   <p>{error}</p>
                 </div>

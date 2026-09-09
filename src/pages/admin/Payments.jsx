@@ -4,7 +4,7 @@ import { CreditCard, Search, Eye } from 'lucide-react';
 
 import Sidebar    from '../../components/Sidebar';
 import DemoBadge  from '../../components/DemoBadge';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../hooks/useApp';
 import { formatCurrency, formatDate } from '../../data/mockData';
 
 export default function PaymentsPage() {
@@ -54,7 +54,7 @@ export default function PaymentsPage() {
             <div className="relative flex-1">
               <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-500" />
               <input
-                className="input pl-10 bg-white h-full"
+                className="input !pl-10 bg-white h-full"
                 placeholder="Search by student, ID, or mode..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

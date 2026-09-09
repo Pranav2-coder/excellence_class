@@ -14,9 +14,11 @@ export function useAdminSetup() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const checkAdminExists = async () => {
-    setLoading(true);
-    setError(null);
+  const checkAdminExists = async (isRefetch = false) => {
+    if (isRefetch === true) {
+      setLoading(true);
+      setError(null);
+    }
     try {
       const { count, error: dbError } = await supabase
         .from('admin_profiles')
@@ -35,8 +37,8 @@ export function useAdminSetup() {
   };
 
   useEffect(() => {
-    checkAdminExists();
+    Promise.resolve().then(() => checkAdminExists());
   }, []);
 
-  return { adminExists, loading, error, refetch: checkAdminExists };
+  return { adminExists, loading, error, refetch: () => checkAdminExists(true) };
 }

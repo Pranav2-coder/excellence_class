@@ -4,7 +4,7 @@ import {
   Bell, FileText, Globe, Smartphone
 } from 'lucide-react';
 import DemoBadge from '../components/DemoBadge';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../hooks/useApp';
 
 const FEATURES = [
   {

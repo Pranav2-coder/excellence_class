@@ -11,7 +11,7 @@ import Sidebar     from '../../components/Sidebar';
 import Modal       from '../../components/Modal';
 import ProgressBar from '../../components/ProgressBar';
 import DemoBadge   from '../../components/DemoBadge';
-import { useApp }  from '../../context/AppContext';
+import { useApp } from '../../hooks/useApp';
 import {
   formatCurrency, formatDate, calcPaid, calcRemaining, PAYMENT_MODES
 } from '../../data/mockData';
@@ -50,7 +50,7 @@ function AddPaymentModal({ isOpen, onClose, studentId }) {
       setForm({ amount: '', date: today, mode: PAYMENT_MODES[0], note: '' });
       setErrors({});
       onClose();
-    } catch (err) {
+    } catch {
       toast.error('Failed to save payment to database.');
     }
   };
@@ -63,7 +63,7 @@ function AddPaymentModal({ isOpen, onClose, studentId }) {
           <div className="relative">
             <IndianRupee size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-500" />
             <input
-              className={`input pl-10 ${errors.amount ? 'border-rose-500' : ''}`}
+              className={`input !pl-10 ${errors.amount ? 'border-rose-500' : ''}`}
               placeholder="Enter amount"
               value={form.amount}
               onChange={(e) => setForm({ ...form, amount: e.target.value })}
@@ -78,7 +78,7 @@ function AddPaymentModal({ isOpen, onClose, studentId }) {
             <CalendarDays size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-500" />
             <input
               type="date"
-              className={`input pl-10 ${errors.date ? 'border-rose-500' : ''}`}
+              className={`input !pl-10 ${errors.date ? 'border-rose-500' : ''}`}
               value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
             />
@@ -91,7 +91,7 @@ function AddPaymentModal({ isOpen, onClose, studentId }) {
           <div className="relative">
             <CreditCard size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-silver-500" />
             <select
-              className="input pl-10"
+              className="input !pl-10"
               value={form.mode}
               onChange={(e) => setForm({ ...form, mode: e.target.value })}
             >
@@ -130,7 +130,7 @@ export default function StudentDetail() {
       try {
         await deleteStudent(id);
         navigate('/admin/students');
-      } catch (err) {
+      } catch {
         toast.error('Failed to delete student from database.');
       }
     }

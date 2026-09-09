@@ -103,7 +103,7 @@ export default function SetupAdminForm({ onSuccess }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="admin@yourschool.com"
-            className="input pl-10"
+            className="input !pl-10"
             autoComplete="email"
             disabled={loading}
             required
@@ -122,7 +122,7 @@ export default function SetupAdminForm({ onSuccess }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Create a strong password"
-            className="input pl-10 pr-10"
+            className="input !pl-10 !pr-10"
             autoComplete="new-password"
             disabled={loading}
             required
@@ -149,7 +149,7 @@ export default function SetupAdminForm({ onSuccess }) {
             value={confirmPw}
             onChange={(e) => setConfirmPw(e.target.value)}
             placeholder="Re-enter your password"
-            className="input pl-10 pr-10"
+            className="input !pl-10 !pr-10"
             autoComplete="new-password"
             disabled={loading}
             required

@@ -1,16 +1,16 @@
 import {
   Users, IndianRupee, TrendingUp, Clock,
-  Bell, Search, ChevronRight
+  Bell, ChevronRight
 } from 'lucide-react';
 import {
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  AreaChart, Area, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 
 import Sidebar    from '../../components/Sidebar';
 import StatCard   from '../../components/StatCard';
 import DemoBadge  from '../../components/DemoBadge';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '../../hooks/useApp';
 import { formatCurrency, formatDate } from '../../data/mockData';
 import { useNavigate } from 'react-router-dom';
 

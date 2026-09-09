@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { useApp } from './context/AppContext';
+import { useApp } from './hooks/useApp';
 
 import Landing from './pages/Landing';
 import AdminLogin from './pages/AdminLogin';
