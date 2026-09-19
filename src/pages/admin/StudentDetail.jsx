@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Phone, BookOpen, CalendarDays,
   Plus, IndianRupee, CreditCard, CheckCircle2,
-  AlertTriangle, Receipt, Trash2
+  AlertTriangle, Receipt, Trash2, AlertCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -122,8 +122,10 @@ function AddPaymentModal({ isOpen, onClose, studentId }) {
 export default function StudentDetail() {
   const { id }       = useParams();
   const navigate     = useNavigate();
-  const { getStudent, deleteStudent } = useApp();
+  const { getStudent, deleteStudent, deletePayment } = useApp();
   const [payOpen, setPayOpen] = useState(false);
+  const [deleteReceiptOpen, setDeleteReceiptOpen] = useState(false);
+  const [isDeletingReceipt, setIsDeletingReceipt] = useState(false);
 
   const handleDelete = async () => {
     if (window.confirm(`Are you sure you want to delete this student? This action cannot be undone.`)) {
@@ -133,6 +135,19 @@ export default function StudentDetail() {
       } catch {
         toast.error('Failed to delete student from database.');
       }
+    }
+  };
+
+  const handleDeleteReceipt = async (paymentId) => {
+    setIsDeletingReceipt(true);
+    try {
+      await deletePayment(id, paymentId);
+      toast.success('✅ Receipt deleted successfully.');
+      setDeleteReceiptOpen(false);
+    } catch {
+      toast.error('Failed to delete receipt. Please try again.');
+    } finally {
+      setIsDeletingReceipt(false);
     }
   };
 
@@ -158,12 +173,73 @@ export default function StudentDetail() {
   const paid      = calcPaid(student);
   const remaining = calcRemaining(student);
   const pct       = Math.round((paid / student.yearlyFee) * 100);
-  const sorted    = [...student.payments].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  // Sort by createdAt desc (most recently inserted first), fall back to id desc for ties
+  const sorted = [...student.payments].sort((a, b) => {
+    const tA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const tB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    if (tB !== tA) return tB - tA;
+    return b.id.localeCompare(a.id);
+  });
+
+  // The first item after sorting is the latest receipt — the only one deletable
+  const latestPaymentId = sorted[0]?.id ?? null;
 
   return (
     <div className="flex h-screen overflow-hidden bg-silver-100">
       <Sidebar />
       <AddPaymentModal isOpen={payOpen} onClose={() => setPayOpen(false)} studentId={id} />
+
+      {/* Delete Receipt Confirmation Modal */}
+      <Modal
+        isOpen={deleteReceiptOpen}
+        onClose={() => !isDeletingReceipt && setDeleteReceiptOpen(false)}
+        title="Delete Receipt?"
+        maxWidth="max-w-sm"
+      >
+        <div className="space-y-5">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
+              <AlertCircle size={20} className="text-rose-500" />
+            </div>
+            <p className="text-sm text-silver-700 leading-relaxed pt-1">
+              You are about to permanently delete the latest receipt.{' '}
+              <span className="font-semibold text-navy-950">This action cannot be undone.</span>
+            </p>
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button
+              type="button"
+              onClick={() => setDeleteReceiptOpen(false)}
+              disabled={isDeletingReceipt}
+              className="btn-secondary flex-1 justify-center"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDeleteReceipt(latestPaymentId)}
+              disabled={isDeletingReceipt}
+              className="flex-1 justify-center inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-rose-500 text-white hover:bg-rose-600 active:bg-rose-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            >
+              {isDeletingReceipt ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                  Deleting…
+                </>
+              ) : (
+                <>
+                  <Trash2 size={14} />
+                  Delete
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
         {/* Top bar */}
@@ -308,6 +384,7 @@ export default function StudentDetail() {
                       <th>Date</th>
                       <th>Mode</th>
                       <th>Note</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -319,6 +396,20 @@ export default function StudentDetail() {
                         <td className="text-sm text-silver-600">{formatDate(p.date)}</td>
                         <td><span className="badge-success">{p.mode}</span></td>
                         <td className="text-sm text-silver-500">{p.note || '—'}</td>
+                        <td>
+                          {p.id === latestPaymentId ? (
+                            <button
+                              onClick={() => setDeleteReceiptOpen(true)}
+                              title="Delete latest receipt"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 transition-colors"
+                            >
+                              <Trash2 size={12} />
+                              Delete Receipt
+                            </button>
+                          ) : (
+                            <span />
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

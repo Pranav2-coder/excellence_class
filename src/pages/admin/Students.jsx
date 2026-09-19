@@ -102,7 +102,7 @@ function AddStudentModal({ isOpen, onClose }) {
             >
               <option>MHTCET</option>
               <option>JEE</option>
-              <option>NEET</option>
+              <option>General Science</option>
             </select>
           </div>
         )}

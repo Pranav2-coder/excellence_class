@@ -136,6 +136,7 @@ export function AppProvider({ children }) {
           date: p.date,
           mode: p.mode,
           note: p.note,
+          createdAt: p.created_at, // used to identify the most recent receipt
         })),
     }));
 
@@ -252,6 +253,36 @@ export function AppProvider({ children }) {
     setStudents((prev) => prev.filter((s) => s.id !== studentId));
   };
 
+  /**
+   * Delete a single payment (receipt) by ID.
+   * Only the latest receipt should ever be passed here — enforced by the UI.
+   * totalPaid and remainingFees are computed from payments[], so removing the
+   * payment row is the only DB write needed (fully atomic single DELETE).
+   */
+  const deletePayment = async (studentId, paymentId) => {
+    const { error } = await supabase
+      .from('payments')
+      .delete()
+      .eq('id', paymentId)
+      .eq('student_id', studentId); // safety guard: only delete if it belongs to this student
+
+    if (error) {
+      console.error(error);
+      throw error;
+    }
+
+    // Remove from local state — calcPaid / calcRemaining recalculate automatically
+    setStudents((prev) =>
+      prev.map((s) => {
+        if (s.id !== studentId) return s;
+        return {
+          ...s,
+          payments: s.payments.filter((p) => p.id !== paymentId),
+        };
+      })
+    );
+  };
+
   const getStudent = (id) => students.find((s) => s.id === id);
 
   const getTotals = () => {
@@ -349,6 +380,7 @@ export function AppProvider({ children }) {
     addStudent,
     addPayment,
     deleteStudent,
+    deletePayment,
     getStudent,
     getTotals,
     getRecentPayments,
